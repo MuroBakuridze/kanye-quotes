@@ -11,6 +11,9 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -31,6 +34,39 @@
             <main>
                 {{ $slot }}
             </main>
+            @stack('scripts')
         </div>
+        <script>
+            function refreshQuotes() {
+                const button = document.getElementById('refresh-button');
+                const spinner = document.getElementById('spinner');
+                
+                // Show spinner and disable button
+                spinner.style.display = 'inline-block';
+                button.disabled = true;
+                
+                axios.get('/api/quotes')
+                    .then(response => {
+                        let quotes = response.data;
+                        let quotesDiv = document.getElementById('quotes');
+                        quotesDiv.innerHTML = '<ul class="list-group"></ul>';
+                        let quotesList = quotesDiv.querySelector('ul');
+                        quotes.forEach(quote => {
+                            let li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = quote;
+                            quotesList.appendChild(li);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching quotes:', error);
+                    })
+                    .finally(() => {
+                        // Hide spinner and enable button
+                        spinner.style.display = 'none';
+                        button.disabled = false;
+                    });
+            }
+        </script>
     </body>
 </html>
